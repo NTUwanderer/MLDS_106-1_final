@@ -25,3 +25,11 @@ for cDir in real_cDirs:
 print ('len: ', len(synth_image_label_pair), len(real_image_label_pair))
 # print (':100 : ', synth_image_label_pair[:100])
 # print (':100 : ', real_image_label_pair[:100])
+
+def getSynthPairs():
+    return synth_image_label_pair
+
+def getRealPairs():
+    return real_image_label_pair
+
+
