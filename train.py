@@ -8,6 +8,8 @@ The configuration file is a json file and looks like this:
     "model" : {
         "architecture":         "Full Yolo",
         "input_size":           416,
+        "input_size_h":         460,
+        "input_size_w":         612,
         "anchors":              [0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828],
         "max_box_per_image":    10,        
         "labels":               ["raccoon"]
@@ -74,12 +76,16 @@ def _main_(args):
     # parse annotations of the training set
     train_imgs, train_labels = parse_annotation(config['train']['train_annot_folder'], 
                                                 config['train']['train_image_folder'], 
+                                                config['model']['input_size_h'],
+                                                config['model']['input_size_w'],
                                                 config['model']['labels'])
 
     # parse annotations of the validation set, if any, otherwise split the training set
     if os.path.exists(config['valid']['valid_annot_folder']):
         valid_imgs, valid_labels = parse_annotation(config['valid']['valid_annot_folder'], 
                                                     config['valid']['valid_image_folder'], 
+                                                    config['model']['input_size_h'],
+                                                    config['model']['input_size_w'],
                                                     config['model']['labels'])
     else:
         train_valid_split = int(0.8*len(train_imgs))
