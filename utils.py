@@ -30,6 +30,9 @@ class BoundBox:
             
         return self.score
 
+    def get_x(self):
+        return self.x
+
 class WeightReader:
     def __init__(self, weight_file):
         self.offset = 4

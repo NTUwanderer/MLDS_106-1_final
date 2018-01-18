@@ -49,6 +49,7 @@ import numpy as np
 from preprocessing import parse_annotation
 from frontend import YOLO
 import json
+import pdb
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
@@ -62,9 +63,25 @@ argparser.add_argument(
     default='config.json',
     help='path to configuration file')
 
+argparser.add_argument(
+    '-i',
+    '--input',
+    default='data/',
+    help='path to configuration file')
+
+argparser.add_argument(
+    '-w',
+    '--weights',
+    default='full_yolo_hand_small.h5',
+    help='path to save weights')
+
+
+
 def _main_(args):
 
     config_path = args.conf
+    input_path = args.input
+    model_path = args.weights
 
     with open(config_path) as config_buffer:    
         config = json.loads(config_buffer.read())
@@ -75,11 +92,12 @@ def _main_(args):
 
     # parse annotations of the training set
     train_imgs, train_labels = parse_annotation(config['train']['train_annot_folder'], 
-                                                config['train']['train_image_folder'], 
+                                                input_path, 
                                                 config['model']['input_size_h'],
                                                 config['model']['input_size_w'],
                                                 config['model']['labels'])
 
+    #pdb.set_trace()
     # parse annotations of the validation set, if any, otherwise split the training set
     if os.path.exists(config['valid']['valid_annot_folder']):
         valid_imgs, valid_labels = parse_annotation(config['valid']['valid_annot_folder'], 
@@ -92,7 +110,7 @@ def _main_(args):
         np.random.shuffle(train_imgs)
 
         valid_imgs = train_imgs[train_valid_split:]
-        train_imgs = train_imgs[:train_valid_split]
+        #train_imgs = train_imgs[:train_valid_split]
 
     if len(config['model']['labels']) > 0:
         overlap_labels = set(config['model']['labels']).intersection(set(train_labels.keys()))
@@ -129,7 +147,7 @@ def _main_(args):
     ###############################
     #   Start the training process 
     ###############################
-
+    config['train']['saved_weights_name'] = model_path
     yolo.train(train_imgs         = train_imgs,
                valid_imgs         = valid_imgs,
                train_times        = config['train']['train_times'],
