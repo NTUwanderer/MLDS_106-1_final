@@ -13,7 +13,7 @@ def loadEmptyPairs(cDir):
 
 
 def getSynthPairs(img_dir):
-    synth_dirs = [img_dir + 'DeepQ-Synth-Hand-01/data', img_dir + 'DeepQ-Synth-Hand-02/data']
+    synth_dirs = [os.path.join(img_dir, 'DeepQ-Synth-Hand-01/data'), os.path.join(img_dir, 'DeepQ-Synth-Hand-02/data')]
     synth_cDirs = []
     for synth_dir in synth_dirs:
         synth_cDirs += [os.path.join(synth_dir, data_dir)  for data_dir in sorted(os.listdir(synth_dir))]
@@ -26,7 +26,7 @@ def getSynthPairs(img_dir):
     return synth_image_label_pair
 
 def getRealPairs(img_dir):
-    real_cDirs = [img_dir + 'DeepQ-Vivepaper/data/air', img_dir + 'DeepQ-Vivepaper/data/book']
+    real_cDirs = [os.path.join(img_dir, 'DeepQ-Vivepaper/data/air'), os.path.join(img_dir, 'DeepQ-Vivepaper/data/book')]
 
     real_image_label_pair = []
 
