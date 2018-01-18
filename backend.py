@@ -144,12 +144,12 @@ class FullYoloFeature(BaseFeatureExtractor):
         x = Conv2D(1024, (3,3), strides=(1,1), padding='same', name='conv_19', use_bias=False)(x)
         x = BatchNormalization(name='norm_19')(x)
         x = LeakyReLU(alpha=0.1)(x)
-
+        """
         # Layer 20
         x = Conv2D(1024, (3,3), strides=(1,1), padding='same', name='conv_20', use_bias=False)(x)
         x = BatchNormalization(name='norm_20')(x)
         x = LeakyReLU(alpha=0.1)(x)
-
+        """
         # Layer 21
         skip_connection = Conv2D(64, (1,1), strides=(1,1), padding='same', name='conv_21', use_bias=False)(skip_connection)
         skip_connection = BatchNormalization(name='norm_21')(skip_connection)

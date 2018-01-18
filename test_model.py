@@ -1,4 +1,5 @@
 import argparse, os
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--batch_size', type=int, default=64, help = 'Batch size of classifier')
@@ -35,16 +36,16 @@ def loadLabels(pairs):
 
     return labels
 
-#features = preprocess_test.getFeatures(read_data.getRealPairs(), 16)
-synth_labels = loadLabels(read_data.getSynthPairs())
+#real_features = preprocess_test.getFeatures(read_data.getRealPairs(), 16)
+#synth_labels = loadLabels(read_data.getSynthPairs())
 real_labels  = loadLabels(read_data.getRealPairs())
 
-synth_features = pickle.load(open('features_s.pkl' , 'rb'))
+#synth_features = pickle.load(open('features_s.pkl' , 'rb'))
 real_features  = pickle.load(open('features_r.pkl' , 'rb'))
 
-order = np.random.shuffle(np.arange(synth_features.shape[0]))
-synth_features = synth_features[order][0]
-synth_labels = synth_labels[order][0]
+#order = np.random.shuffle(np.arange(synth_features.shape[0]))
+#synth_features = synth_features[order][0]
+#synth_labels = synth_labels[order][0]
 order = np.random.shuffle(np.arange(real_features.shape[0]))
 print ('shapes: ', real_features.shape, real_labels.shape)
 real_features = real_features[order][0]
@@ -66,6 +67,9 @@ model.save('model/model.hdf5')
 preds = model.predict(real_features)
 print ('preds.shape: ', preds.shape)
 onehot_preds = np.argmax(preds, axis=1)
+print (onehot_preds)
+onehot_real_labels = np.argmax(real_labels, axis=1)
+print (onehot_real_labels)
 full_preds = np.zeros(real_labels.shape)
 full_preds[np.arange(len(full_preds)), onehot_preds] = 1
 
@@ -76,18 +80,25 @@ for label in onehot_preds:
     counts[label] += 1
 print ('pred counts: ', counts)
 
-preds = model.predict(synth_features)
-print ('preds.shape: ', preds.shape)
-onehot_preds = np.argmax(preds, axis=1)
+#preds = model.predict(synth_features)
+#print ('preds.shape: ', preds.shape)
+#onehot_preds = np.argmax(preds, axis=1)
+#
+#print ('synth acc: ', accuracy_score(np.argmax(synth_labels, axis=1), onehot_preds))
+#counts = [0, 0, 0]
+#for label in np.argmax(synth_labels, axis=1):
+#    counts[label] += 1
+#print ('synth counts: ', counts)
 
-print ('synth acc: ', accuracy_score(np.argmax(synth_labels, axis=1), onehot_preds))
 counts = [0, 0, 0]
-for label in np.argmax(synth_labels, axis=1):
-    counts[label] += 1
-print ('synth counts: ', counts)
+errors = 0
+for i in range(len(onehot_preds)):
+    if onehot_preds[i] != onehot_real_labels[i]:
+        errors += 1
 
-counts = [0, 0, 0]
-for label in onehot_preds:
-    counts[label] += 1
-print ('synth pred counts: ', counts)
+print ('errors: ', errors)
+
+print ('onehots')
+print (onehot_preds)
+print (onehot_real_labels)
 
