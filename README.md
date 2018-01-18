@@ -15,11 +15,11 @@ Required Packages & Version:
 
 #### Install Package
 ```bash
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 #### Download Trained Model
-Our trained hand detection model is available at ###. Run the download script to download the model:
+Our trained hand detection model is available at gitlab. Run the download script to download the model:
 ```bash
 $ bash download.sh
 ```
