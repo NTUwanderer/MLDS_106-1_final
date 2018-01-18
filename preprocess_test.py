@@ -5,14 +5,13 @@ from keras.preprocessing import image
 import argparse, os
 import numpy as np
 import progressbar
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 from keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
 
 #tempImgPath = 'DeepQ-Vivepaper/data/air/img'
 image_dim = (460, 612, 3)
 feature_size = 2048
-
-feature_extractor_model = keras.applications.resnet50.ResNet50(weights='imagenet', include_top=False, pooling='avg')
 
 #img = image.load_img(os.path.join(tempImgPath, 'img_00000.png'), target_size=image_dim)
 #x = image.img_to_array(img)
@@ -22,6 +21,7 @@ feature_extractor_model = keras.applications.resnet50.ResNet50(weights='imagenet
 #print ('preds shape: ', preds.shape)
 
 def getFeatures(pairs, temp_batch):
+    feature_extractor_model = keras.applications.resnet50.ResNet50(weights='imagenet', include_top=False, pooling='avg')
 
     features = np.zeros((len(pairs), feature_size))
     temp_imgs = np.zeros([temp_batch] + list(image_dim))
@@ -39,7 +39,7 @@ def getFeatures(pairs, temp_batch):
             count += i + 1 - progress_index
             progress_index = i + 1
 
+    del feature_extractor_model
 
-    print ('count: ', count)
     return features
 

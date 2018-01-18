@@ -16,7 +16,7 @@ def parse_annotation(ann_dir, img_dir, input_size_h, input_size_w, labels=[]):
     labels = ['L', 'R', 'LR']
     seen_labels = {'L': 0, 'R': 0, 'LR': 0}
 
-    for pair in read_data.getRealPairs():
+    for pair in read_data.getRealPairs(img_dir) + read_data.getSynthPairs(img_dir):
         img = {'object':[], 'width': input_size_w, 'height': input_size_h}
         img['filename'] = pair[0]
 

@@ -9,6 +9,7 @@ from preprocessing import parse_annotation
 from utils import draw_boxes
 from frontend import YOLO
 import json
+import judger_hand
 
 
 import read_data
@@ -38,18 +39,11 @@ argparser.add_argument(
     '--input',
     help='path to an image or an video (mp4 format)')
 
-argparser.add_argument(
-    '-o',
-    '--output',
-    default = 'output_small',
-    help='path to store output')
-
 def _main_(args):
  
     config_path  = args.conf
     weights_path = args.weights
     image_path   = args.input
-    output_path = args.output
 
     with open(config_path) as config_buffer:    
         config = json.load(config_buffer)
@@ -75,11 +69,15 @@ def _main_(args):
     #   Predict bounding boxes 
     ###############################
 
-    pairs = read_data.getRealTestPairs()
-    hand_labels = predict_hands.predictHands(pairs, 'features_rt.pkl') # 0: left, 1: right, 2: both
+    #pairs = read_data.getRealTestPairs()
+    imgs = judger_hand.get_file_names()
+    #imgs = ['data/DeepQ-Vivepaper/data/air/img/img_00000.png', 'data/DeepQ-Vivepaper/data/air/img/img_00001.png']
+    pairs = [ [img, '']  for img in imgs ]
+    hand_labels = predict_hands.predictHands_prod(pairs) # 0: left, 1: right, 2: both
+    f = judger_hand.get_output_file_object()
+    #f = open('test_output.txt', 'wb')
     for index, pair in enumerate(pairs):
         hand_label = hand_labels[index]
-        print ('hand_label: ', hand_label)
         image_path = pair[0]
         if image_path[-4:] == '.mp4':
             video_out = image_path[:-4] + '_detected' + image_path[-4:]
@@ -106,16 +104,35 @@ def _main_(args):
             video_reader.release()
             video_writer.release()  
         else:
+            #image = cv2.imread(image_path)
+            #boxes = yolo.predict(image, hand_label)
+            #image = draw_boxes(image, boxes, config['model']['labels'])
+
             image = cv2.imread(image_path)
             boxes = yolo.predict(image, hand_label)
             image = draw_boxes(image, boxes, config['model']['labels'])
+            for box in boxes:
+                x0 = int((box.x - box.w/2) * image.shape[1])
+                x1 = int((box.x + box.w/2) * image.shape[1])
+                y0 = int((box.y - box.h/2) * image.shape[0])
+                y1 = int((box.y + box.h/2) * image.shape[0])
+                x0 = np.clip(x0, 0, image.shape[1])
+                x1 = np.clip(x1, 0, image.shape[1])
+                y0 = np.clip(y0, 0, image.shape[0])
+                y1 = np.clip(y1, 0, image.shape[0])
+                #for box in boxes:
+                #f.write(str.encode('%s %d %d %d %d %d %f\n' % (image_path, x0, y0, x1, y1, box.get_label(), box.get_score())))
+                #f.write('%s %d %d %d %d %d %f\n' % (image_path, x0, y0, x1, y1, box.get_label(), box.get_score()))
+                f.write((image_path + ' ' + str(x0) + ' ' + str(y0) + ' '+ str(x1) + ' ' + str(y1) + ' ' + str(box.get_label()) + ' ' +str(box.get_score()) +'\n' ).encode('ascii'))
+    score, err = judger_hand.judge()
+    print('score:', score)
+    print('err:',err)
+            #image_path = 'output3/' + image_path.split('/')[-3] + '_' + image_path.split('/')[-1]
 
-            print (len(boxes), 'boxes are found')
-
-            image_path = output_path + image_path.split('/')[-2] + '_' + image_path.split('/')[-1]
-
-            cv2.imwrite(image_path[:-4] + '_detected' + image_path[-4:], image)
+            #cv2.imwrite(image_path[:-4] + '_detected' + image_path[-4:], image)
 
 if __name__ == '__main__':
     args = argparser.parse_args()
     _main_(args)
+    from keras import backend as K
+    K.clear_session()
