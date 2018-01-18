@@ -19,9 +19,9 @@ $ pip3 install -r requirements.txt
 ```
 
 #### Download Trained Model
-Our trained hand detection model is available at gitlab. Run the download script to download the model:
+Our trained hand detection model is available on Github release. You can run the download script to download the model:
 ```bash
-$ bash download.sh
+$ sh download.sh
 ```
 
 #### Test Model
